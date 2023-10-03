@@ -1,0 +1,2 @@
+#define hoverApp_VERSION_MAJOR @hoverApp_VERSION_MAJOR@
+#define hoverApp_VERSION_MINOR @hoverApp_VERSION_MINOR@
