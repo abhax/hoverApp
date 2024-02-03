@@ -153,7 +153,7 @@ static int read_isp(struct v4l2_buffer buf)
 				else
 					break;
 			}
-			printf("Got image of size %d from %x\n",buf_isp.bytesused, (unsigned int)buffers_isp_out->start);
+			printf("Got image of size %d from %x\n",buf_isp.bytesused, buffers_isp_out->start);
 			process_image(buffers_isp_out->start, buf_isp.bytesused);
 
 			/* Queue a buffer so the data can be read through the ISP output */
