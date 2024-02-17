@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cmake",
+            "label": "CMake: build",
+            "command": "cleanRebuild",
+            "targets": [
+                "hoverApp"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "CMake template build task"
+        },
+        {
+            "type": "shell",
+            "label": "Copy Binary",
+            "options": {
+                "cwd": "${workspaceRoot}/scripts"
+            },
+            "command": "./copyBinary.sh 192.168.0.31"
+        },
+        {
+            "label": "Build and Load",
+            "dependsOrder": "sequence",
+            "dependsOn": ["CMake: build", "Copy Binary"]
+        }
+    ]     
+} 
