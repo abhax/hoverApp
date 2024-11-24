@@ -21,7 +21,7 @@
             "options": {
                 "cwd": "${workspaceRoot}/scripts"
             },
-            "command": "./copyBinary.sh 192.168.0.31"
+            "command": "./copyBinary.sh 192.168.4.52"
         },
         {
             "label": "Build and Load",

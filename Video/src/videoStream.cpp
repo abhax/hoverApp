@@ -46,6 +46,7 @@ struct buffer {
 static const char            *dev_name;
 static const char            *dev_isp_in;
 static const char            *dev_isp_out;
+static const char            *clear_files;
 static enum io_method   io = IO_METHOD_MMAP;
 static int              fd = -1;
 static int              fd_isp_in = -1;
@@ -84,7 +85,7 @@ static void process_image(const void *p, int size)
         FILE *fp=fopen(filename,"wb");
         if (out_buf)
         {
-        		printf("Write the image buffer to cache\n");
+        	//printf("Write the image buffer to cache\n");
                 fwrite(p, size, 1, fp);
         }
         fflush(fp);
@@ -100,11 +101,11 @@ static int read_isp(struct v4l2_buffer buf)
 	switch (io) {
 
 		case IO_METHOD_MMAP:
-			printf("Step 3 \n");
+			//printf("Step 3 \n");
 			/* Copy the data into the ISP input buffecd /So	r */
 			memcpy(buffers_isp_in->start, buffers[buf.index].start, buf.bytesused);
 			// Queue the buffer
-			printf("Step 2 \n");
+			//printf("Step 2 \n");
 			CLEAR(buf_isp);
 			buf_isp.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 			buf_isp.memory = V4L2_MEMORY_MMAP;
@@ -112,7 +113,7 @@ static int read_isp(struct v4l2_buffer buf)
 			if (-1 == xioctl(fd_isp_in, VIDIOC_QBUF, &buf_isp))
 					errno_exit("VIDIOC_QBUF");
 			// Queue the output buffers
-			printf("Step 1 \n");
+			//printf("Step 1 \n");
 			CLEAR(buf_isp);
 			buf_isp.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			buf_isp.memory = V4L2_MEMORY_MMAP;
@@ -120,16 +121,16 @@ static int read_isp(struct v4l2_buffer buf)
 			if (-1 == xioctl(fd_isp_out, VIDIOC_QBUF, &buf_isp))
 					errno_exit("VIDIOC_QBUF");
 			/* Start the stream of the ISP*/
-			printf("Step 5 \n");
+			//printf("Step 5 \n");
 			type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 			if (-1 == xioctl(fd_isp_in, VIDIOC_STREAMON, &type))
 					errno_exit("VIDIOC_STREAMON");
-			printf("Step 5 \n");
+			//printf("Step 5 \n");
 			type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			if (-1 == xioctl(fd_isp_out, VIDIOC_STREAMON, &type))
 					errno_exit("VIDIOC_STREAMON");
 			/* Get the ISP processed image out */
-			printf("Step 6 \n");
+			//printf("Step 6 \n");
 			CLEAR(buf_isp);
 			buf_isp.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			buf_isp.memory = V4L2_MEMORY_MMAP;
@@ -153,7 +154,7 @@ static int read_isp(struct v4l2_buffer buf)
 				else
 					break;
 			}
-			printf("Got image of size %d from %x\n",buf_isp.bytesused, buffers_isp_out->start);
+			//printf("Got image of size %d from %x\n",buf_isp.bytesused, buffers_isp_out->start);
 			process_image(buffers_isp_out->start, buf_isp.bytesused);
 
 			/* Queue a buffer so the data can be read through the ISP output */
@@ -202,7 +203,7 @@ static int read_frame(struct v4l2_buffer *in_buf)
                 CLEAR(buf);
                 buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
                 buf.memory = V4L2_MEMORY_MMAP;
-                printf("Dequeue the frame\n");
+                //printf("Dequeue the frame\n");
                 if (-1 == xioctl(fd, VIDIOC_DQBUF, &buf)) {
                         switch (errno) {
                         case EAGAIN:
@@ -270,7 +271,7 @@ static void mainloop(void)
         count = frame_count;
 
         while (count-- > 0) {
-        		printf("Retrieve Frame %d\n", frame_count - count);
+        		//("Retrieve Frame %d\n", frame_count - count);
 				type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				if (-1 == xioctl(fd, VIDIOC_STREAMON, &type))
 						errno_exit("VIDIOC_STREAMON");
@@ -291,13 +292,13 @@ static void mainloop(void)
                         if (-1 == r) {
                                 if (EINTR == errno)
                                         continue;
-                                printf("Got a select Error!\n");
+                                //printf("Got a select Error!\n");
                                 errno_exit("select");
                         }
 
                         if (0 == r) {
                                 fprintf(stderr, "select timeout\n");
-                                printf("Got a select timeout!\n");
+                                //printf("Got a select timeout!\n");
                                 exit(EXIT_FAILURE);
                         }
 
@@ -426,12 +427,12 @@ static void init_mmap(void)
         req.count = 4;
         req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         req.memory = V4L2_MEMORY_MMAP;
-        printf("Request Memory buffer \n");
+        //printf("Request Memory buffer \n");
 
         if (-1 == xioctl(fd, VIDIOC_REQBUFS, &req)) {
                 if (EINVAL == errno) {
-                        printf("%s does not support "
-                                 "memory mapping\n", dev_name);
+                        //printf("%s does not support "
+                                // "memory mapping\n", dev_name);
                         exit(EXIT_FAILURE);
                 } else {
                         errno_exit("VIDIOC_REQBUFS");
@@ -439,11 +440,11 @@ static void init_mmap(void)
         }
 
         if (req.count < 2) {
-                printf("Insufficient buffer memory on %s\n",
-                         dev_name);
+                //printf("Insufficient buffer memory on %s\n",
+                         //dev_name);
                 exit(EXIT_FAILURE);
         }
-        printf("calloc user buffer array\n");
+        //printf("calloc user buffer array\n");
         buffers = (struct buffer *)calloc(req.count, sizeof(*buffers));
 
         if (!buffers) {
@@ -462,7 +463,7 @@ static void init_mmap(void)
 
                 if (-1 == xioctl(fd, VIDIOC_QUERYBUF, &buf))
                         errno_exit("VIDIOC_QUERYBUF");
-                printf("Memory map element %d\n", n_buffers);
+                //printf("Memory map element %d\n", n_buffers);
                 buffers[n_buffers].length = buf.length;
                 buffers[n_buffers].start =
                         mmap(NULL /* start anywhere */,
@@ -524,18 +525,18 @@ static void init_mmap_isp(void)
         req.count = 1;
         req.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
         req.memory = V4L2_MEMORY_MMAP;
-        printf("Request Memory buffer \n");
+        //printf("Request Memory buffer \n");
 
         if (-1 == xioctl(fd_isp_in, VIDIOC_REQBUFS, &req)) {
                 if (EINVAL == errno) {
-                        printf("%s does not support "
-                                 "memory mapping\n", dev_name);
+                        //printf("%s does not support "
+                                 //"memory mapping\n", dev_name);
                         exit(EXIT_FAILURE);
                 } else {
                         errno_exit("VIDIOC_REQBUFS");
                 }
         }
-        printf("calloc user buffer array\n");
+        //printf("calloc user buffer array\n");
         buffers_isp_in = (struct buffer *)calloc(req.count, sizeof(*buffers_isp_in));
 
         if (!buffers_isp_in) {
@@ -552,7 +553,7 @@ static void init_mmap_isp(void)
 
 		if (-1 == xioctl(fd_isp_in, VIDIOC_QUERYBUF, &buf))
 				errno_exit("VIDIOC_QUERYBUF");
-		printf("Memory map element %d\n", n_buffers);
+		//printf("Memory map element %d\n", n_buffers);
 		buffers_isp_in->length = buf.length;
 		buffers_isp_in->start =
 				mmap(NULL /* start anywhere */,
@@ -570,18 +571,18 @@ static void init_mmap_isp(void)
         req.count = 1;
         req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         req.memory = V4L2_MEMORY_MMAP;
-        printf("Request Memory buffer \n");
+        //printf("Request Memory buffer \n");
 
         if (-1 == xioctl(fd_isp_out, VIDIOC_REQBUFS, &req)) {
                 if (EINVAL == errno) {
-                        printf("%s does not support "
-                                 "memory mapping\n", dev_isp_out);
+                        //printf("%s does not support "
+                                // "memory mapping\n", dev_isp_out);
                         exit(EXIT_FAILURE);
                 } else {
                         errno_exit("VIDIOC_REQBUFS");
                 }
         }
-        printf("calloc user buffer array\n");
+        //printf("calloc user buffer array\n");
         buffers_isp_out = (struct buffer *)calloc(req.count, sizeof(*buffers_isp_out));
 
         if (!buffers_isp_out) {
@@ -597,7 +598,7 @@ static void init_mmap_isp(void)
 
 		if (-1 == xioctl(fd_isp_out, VIDIOC_QUERYBUF, &buf))
 				errno_exit("VIDIOC_QUERYBUF");
-		printf("Memory map element %d of length %d\n", n_buffers,  buf.length);
+		//printf("Memory map element %d of length %d\n", n_buffers,  buf.length);
 		buffers_isp_out->length = buf.length;
 		buffers_isp_out->start =
 				mmap(NULL /* start anywhere */,
@@ -617,7 +618,7 @@ static void init_device(void)
         struct v4l2_crop crop;
         struct v4l2_format fmt;
         unsigned int min;
-        printf("VIDIOC_QUERYCAP \n");
+        //printf("VIDIOC_QUERYCAP \n");
         if (-1 == xioctl(fd, VIDIOC_QUERYCAP, &cap)) {
                 if (EINVAL == errno) {
                         fprintf(stderr, "%s is no V4L2 device\n",
@@ -633,7 +634,7 @@ static void init_device(void)
                          dev_name);
                 exit(EXIT_FAILURE);
         }
-        printf("Can perform Video Capture \n");
+        //printf("Can perform Video Capture \n");
         switch (io) {
         case IO_METHOD_READ:
                 if (!(cap.capabilities & V4L2_CAP_READWRITE)) {
@@ -664,7 +665,7 @@ static void init_device(void)
         if (0 == xioctl(fd, VIDIOC_CROPCAP, &cropcap)) {
                 crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
                 crop.c = cropcap.defrect; /* reset to default */
-                printf("Setting Picture crop to %d x %d",cropcap.defrect.width ,cropcap.defrect.height);
+                //printf("Setting Picture crop to %d x %d",cropcap.defrect.width ,cropcap.defrect.height);
 
                 if (-1 == xioctl(fd, VIDIOC_S_CROP, &crop)) {
                         switch (errno) {
@@ -685,7 +686,7 @@ static void init_device(void)
 
         fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         if (force_format) {
-        		printf("Set H264\r\n");
+        		//printf("Set H264\r\n");
                 fmt.fmt.pix.width       = 1920; //replace
                 fmt.fmt.pix.height      = 1080; //replace
                 fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_SRGB10; //replace
@@ -762,21 +763,21 @@ static void open_isp(void)
         struct stat st;
 
         if (-1 == stat(dev_isp_in, &st)) {
-                printf("Cannot identify '%s': %d, %s\n",
-                                dev_isp_in, errno, strerror(errno));
+                //printf("Cannot identify '%s': %d, %s\n",
+                               // dev_isp_in, errno, strerror(errno));
                 exit(EXIT_FAILURE);
         }
 
         if (!S_ISCHR(st.st_mode)) {
-                printf("%s is no device\n", dev_isp_in);
+                //printf("%s is no device\n", dev_isp_in);
                 exit(EXIT_FAILURE);
         }
 
         fd_isp_in = open(dev_isp_in, O_RDWR /* required */ | O_NONBLOCK, 0);
 
         if (-1 == fd_isp_in) {
-                printf("Cannot open '%s': %d, %s\n",
-                                dev_isp_in, errno, strerror(errno));
+                //printf("Cannot open '%s': %d, %s\n",
+                              //  dev_isp_in, errno, strerror(errno));
                 exit(EXIT_FAILURE);
         }       
 
@@ -808,6 +809,7 @@ void videoStream_init(void)
         dev_name = "/dev/video0";
         dev_isp_in = "/dev/video13";
         dev_isp_out = "/dev/video14";
+        clear_files = "rm /storage/frame-*";
         io = IO_METHOD_MMAP;
         out_buf++;                    
         int result;
@@ -815,7 +817,7 @@ void videoStream_init(void)
         result = system(v4l2Setup);
         result = system(ispInSetup);
         result = system(ispOutSetup);        
-        sprintf(mediaSetup,"rm frame-*");
+        result = system(clear_files);
         open_device();
         open_isp();
         init_device();

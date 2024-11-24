@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C++ Launch",
+            "name": "Debug HoverCraft",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/hoverApp",
@@ -21,7 +21,7 @@
             "linux": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "/opt/poky/3.4.4/sysroots/x86_64-pokysdk-linux/usr/bin/aarch64-poky-linux/aarch64-poky-linux-gdb",
-                "miDebuggerServerAddress":"192.168.0.31:3000" ,
+                "miDebuggerServerAddress":"192.168.4.52:3000" ,
                 "debugServerPath": "/usr/bin/gdb",       
             }
         }
