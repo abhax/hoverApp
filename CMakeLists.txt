@@ -8,23 +8,36 @@ project (hoverApp
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Proper RPATH handling for cross-compilation
+set(CMAKE_SKIP_RPATH TRUE)
+set(CMAKE_SKIP_BUILD_RPATH TRUE)
+set(CMAKE_SKIP_INSTALL_RPATH TRUE)
+
 # This project will output an executable file
 set(SOURCES 
-	hoverApp.cpp
-	Video/src/videoStream.cpp 
-	Graphics/src/opengl.cpp 
+	Test/bluetooth.cpp
 	)
-LINK_DIRECTORIES(lib)
-set(LIBRARIES drm EGL gbm GL)
-add_executable(${PROJECT_NAME}  ${SOURCES})
+
+# Use proper lib directory handling instead of hardcoded paths
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+
+# Link to system libraries without hardcoded paths
+find_package(Threads REQUIRED)
+set(LIBRARIES ${CMAKE_THREAD_LIBS_INIT} bluetooth)
+
+add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+
 # Create a simple configuration header
 configure_file(config.h.in config.h)
 
 # Include the configuration header in the build
 target_include_directories(${PROJECT_NAME} PUBLIC 
-										Video/inc/    
-										Graphics/inc/
-						  )
-target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
+                          Video/inc/    
+                          Graphics/inc/
+                          "${PROJECT_BINARY_DIR}"
+                          )
+
+# Install targets - useful for proper installation
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 

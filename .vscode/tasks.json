@@ -18,15 +18,27 @@
         {
             "type": "shell",
             "label": "Copy Binary",
+            "command": "${workspaceFolder}/scripts/copyBinary.sh 192.168.4.52",
             "options": {
-                "cwd": "${workspaceRoot}/scripts"
-            },
-            "command": "./copyBinary.sh 192.168.4.52"
+                "cwd": "${workspaceFolder}"
+            }
         },
         {
             "label": "Build and Load",
             "dependsOrder": "sequence",
             "dependsOn": ["CMake: build", "Copy Binary"]
+        },
+        {
+            "type": "shell",
+            "label": "Prepare Debug",
+            "command": "${workspaceFolder}/scripts/prepare_debug.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
         }
     ]     
 } 

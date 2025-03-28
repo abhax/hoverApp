@@ -13,7 +13,7 @@
             "stopAtEntry": true,
             "targetArchitecture": "arm64",
             "launchCompleteCommand": "exec-run",
-            "preLaunchTask": "Build and Load",
+            "preLaunchTask": "Copy Binary",
             "symbolLoadInfo":{
                 "loadAll": true,
                 "exceptionList": ""
@@ -21,8 +21,47 @@
             "linux": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "/opt/poky/3.4.4/sysroots/x86_64-pokysdk-linux/usr/bin/aarch64-poky-linux/aarch64-poky-linux-gdb",
-                "miDebuggerServerAddress":"192.168.4.52:3000" ,
-                "debugServerPath": "/usr/bin/gdb",       
+                "miDebuggerServerAddress": "192.168.4.52:3000",
+                "setupCommands": [
+                    {
+                        "text": "set sysroot /opt/poky/3.4.4/sysroots/aarch64-poky-linux",
+                        "description": "Set sysroot",
+                        "ignoreFailures": false
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Debug with Manual Preparation",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/hoverApp",
+            "cwd": "${workspaceFolder}/build",
+            "stopAtEntry": true,
+            "targetArchitecture": "arm64",
+            "launchCompleteCommand": "exec-run",
+            "preLaunchTask": "Prepare Debug",
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "/opt/poky/3.4.4/sysroots/x86_64-pokysdk-linux/usr/bin/aarch64-poky-linux/aarch64-poky-linux-gdb",
+                "miDebuggerServerAddress": "192.168.4.52:3000",
+                "setupCommands": [
+                    {
+                        "text": "set sysroot /opt/poky/3.4.4/sysroots/aarch64-poky-linux",
+                        "description": "Set sysroot",
+                        "ignoreFailures": false
+                    },
+                    {
+                        "text": "set print pretty on",
+                        "description": "Enable pretty printing",
+                        "ignoreFailures": true
+                    },
+                    {
+                        "text": "set print thread-events off",
+                        "description": "Reduce noise from threading",
+                        "ignoreFailures": true
+                    }
+                ]
             }
         }
     ]
